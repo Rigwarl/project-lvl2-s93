@@ -11,7 +11,7 @@
       repo_token: 4b5aa044f2b0c920f8e13548a0ebb90ecc1210f246443542941a843385bb28d0
 
   after_success:
-    - npm install -g Istanbul
+    - npm install -g istanbul
     - npm install -g codeclimate-test-reporter
     - istanbul cover
     - codeclimate-test-reporter < ./coverage/lcov.info
