@@ -1,4 +1,4 @@
-import gendiff from '../src/index';
+import genLines from '../src/genlines';
 
 const before = {
   host: 'hexlet.io',
@@ -11,10 +11,8 @@ const after = {
   host: 'hexlet.io',
 };
 
-const getResultStr = arr => `{\n${arr.join('\n')}\n}`;
-
 test('empty configs', () => {
-  expect(gendiff({}, {})).toBe('{\n\n}');
+  expect(genLines({}, {})).toEqual([]);
 });
 
 test('first empty config', () => {
@@ -23,7 +21,7 @@ test('first empty config', () => {
     ' + verbose: true',
     ' + host: hexlet.io',
   ];
-  expect(gendiff({}, after)).toBe(getResultStr(result));
+  expect(genLines({}, after)).toEqual(result);
 });
 
 test('second empty config', () => {
@@ -32,7 +30,7 @@ test('second empty config', () => {
     ' - timeout: 50',
     ' - proxy: 123.234.53.22',
   ];
-  expect(gendiff(before, {})).toBe(getResultStr(result));
+  expect(genLines(before, {})).toEqual(result);
 });
 
 test('custom configs', () => {
@@ -43,5 +41,5 @@ test('custom configs', () => {
     ' - proxy: 123.234.53.22',
     ' + verbose: true',
   ];
-  expect(gendiff(before, after)).toBe(getResultStr(result));
+  expect(genLines(before, after)).toEqual(result);
 });
