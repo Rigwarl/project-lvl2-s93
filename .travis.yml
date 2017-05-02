@@ -13,5 +13,5 @@
   after_success:
     - npm install -g istanbul
     - npm install -g codeclimate-test-reporter
-    - istanbul cover
+    - istanbul cover node_modules/jest/bin/jest.js
     - codeclimate-test-reporter < ./coverage/lcov.info
