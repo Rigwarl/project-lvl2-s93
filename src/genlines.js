@@ -1,5 +1,5 @@
 export default (before, after) => {
-  const lineDiff = {
+  const keyDiff = {
     same: key => [`   ${key}: ${before[key]}`],
     new: key => [` + ${key}: ${after[key]}`],
     removed: key => [` - ${key}: ${before[key]}`],
@@ -18,7 +18,7 @@ export default (before, after) => {
 
   const result = Object.keys({ ...before, ...after })
     .map(key => [key, getKeyType(key)])
-    .map(([key, type]) => lineDiff[type](key))
+    .map(([key, type]) => keyDiff[type](key))
     .reduce((acc, curr) => [...acc, ...curr], []);
 
   return result;
