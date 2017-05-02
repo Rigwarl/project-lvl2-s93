@@ -1,5 +1,12 @@
 ---
-  extends: airbnb-base
+  plugins: [jest]
+
+  env:
+    jest/globals: true
+
+  extends:
+    - airbnb-base
+    - plugin:jest/recommended
 
   rules:
     no-console: 0
