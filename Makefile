@@ -8,7 +8,7 @@ watch:
 	npm test -- --watch
 
 lint:
-	npm run eslint -- src
+	npm run eslint -- .
 
 test:
 	npm test
