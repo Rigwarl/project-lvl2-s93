@@ -1,11 +1,13 @@
 import genDiff from '../src';
 
+const exts = ['json', 'yml', 'ini'];
 const getResultStr = arr => `{\n${arr.join('\n')}\n}`;
-const getDiff = (before, after) => genDiff(`__test__/data/${before}`, `__test__/data/${after}`);
+const getDiff = (before, after, ext) => genDiff(`__test__/data/${before}.${ext}`, `__test__/data/${after}.${ext}`);
+const checkAllExts = (before, after, result) =>
+  exts.forEach(ext => expect(getDiff(before, after, ext)).toEqual(result));
 
 test('empty configs', () => {
-  expect(getDiff('empty.json', 'empty.json')).toEqual('{\n\n}');
-  expect(getDiff('empty.yml', 'empty.yml')).toEqual('{\n\n}');
+  checkAllExts('empty', 'empty', '{\n\n}');
 });
 
 test('first empty config', () => {
@@ -14,8 +16,7 @@ test('first empty config', () => {
     ' + verbose: true',
     ' + host: hexlet.io',
   ];
-  expect(getDiff('empty.json', 'after.json')).toEqual(getResultStr(result));
-  expect(getDiff('empty.yml', 'after.yml')).toEqual(getResultStr(result));
+  checkAllExts('empty', 'after', getResultStr(result));
 });
 
 test('second empty config', () => {
@@ -24,8 +25,7 @@ test('second empty config', () => {
     ' - timeout: 50',
     ' - proxy: 123.234.53.22',
   ];
-  expect(getDiff('before.json', 'empty.json')).toEqual(getResultStr(result));
-  expect(getDiff('before.yml', 'empty.yml')).toEqual(getResultStr(result));
+  checkAllExts('before', 'empty', getResultStr(result));
 });
 
 test('custom configs', () => {
@@ -36,6 +36,5 @@ test('custom configs', () => {
     ' - proxy: 123.234.53.22',
     ' + verbose: true',
   ];
-  expect(getDiff('before.json', 'after.json')).toEqual(getResultStr(result));
-  expect(getDiff('before.yml', 'after.yml')).toEqual(getResultStr(result));
+  checkAllExts('before', 'after', getResultStr(result));
 });
