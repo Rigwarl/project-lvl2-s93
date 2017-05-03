@@ -1,7 +1,13 @@
 import fs from 'fs';
+import yaml from 'js-yaml';
 import genLines from './genlines';
 
-const getConfig = path => JSON.parse(fs.readFileSync(path));
+const getExt = path => path.split('.').slice(-1)[0];
+const parse = {
+  yml: file => yaml.safeLoad(file) || {},
+  json: file => JSON.parse(file),
+};
+const getConfig = path => parse[getExt(path)](fs.readFileSync(path));
 
 export default (before, after) => {
   const lines = genLines(getConfig(before), getConfig(after));
