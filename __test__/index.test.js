@@ -1,18 +1,10 @@
-import genLines from '../src/genlines';
+import genDiff from '../src';
 
-const before = {
-  host: 'hexlet.io',
-  timeout: 50,
-  proxy: '123.234.53.22',
-};
-const after = {
-  timeout: 20,
-  verbose: true,
-  host: 'hexlet.io',
-};
+const getResultStr = arr => `{\n${arr.join('\n')}\n}`;
+const getDiff = (before, after) => genDiff(`__test__/data/${before}`, `__test__/data/${after}`);
 
 test('empty configs', () => {
-  expect(genLines({}, {})).toEqual([]);
+  expect(getDiff('empty.json', 'empty.json')).toEqual('{\n\n}');
 });
 
 test('first empty config', () => {
@@ -21,7 +13,7 @@ test('first empty config', () => {
     ' + verbose: true',
     ' + host: hexlet.io',
   ];
-  expect(genLines({}, after)).toEqual(result);
+  expect(getDiff('empty.json', 'after.json')).toEqual(getResultStr(result));
 });
 
 test('second empty config', () => {
@@ -30,7 +22,7 @@ test('second empty config', () => {
     ' - timeout: 50',
     ' - proxy: 123.234.53.22',
   ];
-  expect(genLines(before, {})).toEqual(result);
+  expect(getDiff('before.json', 'empty.json')).toEqual(getResultStr(result));
 });
 
 test('custom configs', () => {
@@ -41,5 +33,5 @@ test('custom configs', () => {
     ' - proxy: 123.234.53.22',
     ' + verbose: true',
   ];
-  expect(genLines(before, after)).toEqual(result);
+  expect(getDiff('before.json', 'after.json')).toEqual(getResultStr(result));
 });
