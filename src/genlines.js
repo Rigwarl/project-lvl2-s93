@@ -16,10 +16,10 @@ export default (before, after) => {
   const getKeyType = key => ['same', 'new', 'removed', 'changed']
     .find(type => keyCheck[type](key));
 
-  const result = Object.keys({ ...before, ...after })
-    .map(key => [key, getKeyType(key)])
-    .map(([key, type]) => keyDiff[type](key))
-    .reduce((acc, curr) => [...acc, ...curr], []);
+  const getKeyDiff = key => keyDiff[getKeyType(key)](key);
+
+  const keys = Object.keys({ ...before, ...after });
+  const result = keys.map(getKeyDiff).reduce((acc, curr) => [...acc, ...curr], []);
 
   return result;
 };
