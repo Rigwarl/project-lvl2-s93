@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
 import ini from 'ini';
-import genLines from './genlines';
+import gendiff from './gendiff';
 
 const parser = {
   ini: file => ini.parse(file),
@@ -13,7 +13,7 @@ const getExt = p => path.extname(p).substr(1);
 const getConfig = p => parser[getExt(p)](fs.readFileSync(p, 'utf-8'));
 
 export default (before, after) => {
-  const lines = genLines(getConfig(before), getConfig(after));
+  const lines = gendiff(getConfig(before), getConfig(after));
 
   return `{\n${lines.join('\n')}\n}`;
 };
