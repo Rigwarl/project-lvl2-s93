@@ -1,15 +1,16 @@
 import fs from 'fs';
+import path from 'path';
 import yaml from 'js-yaml';
 import ini from 'ini';
 import genLines from './genlines';
 
-const parse = {
+const parser = {
   ini: file => ini.parse(file),
   yml: file => yaml.safeLoad(file) || {},
   json: file => JSON.parse(file),
 };
-const getExt = path => path.split('.').slice(-1)[0];
-const getConfig = path => parse[getExt(path)](fs.readFileSync(path, 'utf-8'));
+const getExt = p => path.extname(p).substr(1);
+const getConfig = p => parser[getExt(p)](fs.readFileSync(p, 'utf-8'));
 
 export default (before, after) => {
   const lines = genLines(getConfig(before), getConfig(after));
