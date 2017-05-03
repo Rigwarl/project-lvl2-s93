@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export default (before, after) => {
   const keyDiff = {
     same: key => [`   ${key}: ${before[key]}`],
@@ -18,8 +20,8 @@ export default (before, after) => {
 
   const getKeyDiff = key => keyDiff[getKeyType(key)](key);
 
-  const keys = Object.keys({ ...before, ...after });
-  const result = keys.map(getKeyDiff).reduce((acc, curr) => [...acc, ...curr], []);
+  const keys = _.union(Object.keys(before), Object.keys(after));
+  const keysDiff = keys.map(getKeyDiff);
 
-  return result;
+  return _.flatten(keysDiff);
 };
