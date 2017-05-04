@@ -38,3 +38,32 @@ test('custom configs', () => {
   ];
   checkAllExts('before', 'after', getResultStr(result));
 });
+
+test('deep configs', () => {
+  const result = [
+    '   common: {',
+    '      setting1: Value 1',
+    '    - setting2: 200',
+    '      setting3: true',
+    '    - setting6: {',
+    '         key: value',
+    '      }',
+    '    + setting4: blah blah',
+    '    + setting5: {',
+    '         key5: value5',
+    '      }',
+    '   }',
+    '   group1: {',
+    '    - baz: bas',
+    '    + baz: bars',
+    '      foo: bar',
+    '   }',
+    ' - group2: {',
+    '      abc: 12345',
+    '   }',
+    ' + group3: {',
+    '      fee: 100500',
+    '   }',
+  ];
+  expect(getDiff('deep-before', 'deep-after', 'json')).toEqual(getResultStr(result));
+});
