@@ -31,7 +31,7 @@ export const buildDiff = (before, after, depth = 0) =>
   _.union(Object.keys(before), Object.keys(after))
   .map(key => buildKeyDiff(key, before[key], after[key], depth));
 
-const keyBuilder = {
+const keyStringifier = {
   same: key => [`   ${key.name}: ${stringifyDiff(key.before, key.depth + 1)}`],
   new: key => [` + ${key.name}: ${stringifyDiff(key.after, key.depth + 1)}`],
   removed: key => [` - ${key.name}: ${stringifyDiff(key.before, key.depth + 1)}`],
@@ -43,7 +43,7 @@ const keyBuilder = {
 
 const stringifyKey = (key) => {
   const pad = _.repeat(' ', key.depth * 3);
-  const diff = _.flatten(keyBuilder[key.type](key));
+  const diff = _.flatten(keyStringifier[key.type](key));
 
   return diff.map(row => pad + row).join('\n');
 };
