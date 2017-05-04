@@ -11,25 +11,33 @@ const keyChecker = {
 const getKeyType = (before, after) => ['same', 'new', 'removed', 'changed']
   .find(type => keyChecker[type](before, after));
 
-const buildKeyDiff = (name, before, after, depth) => ({
-  name,
-  depth,
-  type: getKeyType(before, after),
-  before: before instanceof Object ? buildDiff(before, after, depth + 1) : before,
-  after: after instanceof Object ? buildDiff(before, after, depth + 1) : after,
-});
+const buildKeyDiff = (name, before, after, depth) => {
+  const type = getKeyType(before, after);
+  const newBefore = type === 'new' ? after : before;
+  const newAfter = type === 'removed' ? before : after;
+  const buildValue = value =>
+    (value instanceof Object ? buildDiff(newBefore, newAfter, depth + 1) : value);
+
+  return {
+    name,
+    depth,
+    type,
+    before: buildValue(before),
+    after: buildValue(after),
+  };
+};
 
 export const buildDiff = (before, after, depth = 0) =>
   _.union(Object.keys(before), Object.keys(after))
   .map(key => buildKeyDiff(key, before[key], after[key], depth));
 
 const keyBuilder = {
-  same: key => [`   ${key.name}: ${stringifyDiff(key.before)}`],
-  new: key => [` + ${key.name}: ${stringifyDiff(key.after)}`],
-  removed: key => [` - ${key.name}: ${stringifyDiff(key.before)}`],
+  same: key => [`   ${key.name}: ${stringifyDiff(key.before, key.depth + 1)}`],
+  new: key => [` + ${key.name}: ${stringifyDiff(key.after, key.depth + 1)}`],
+  removed: key => [` - ${key.name}: ${stringifyDiff(key.before, key.depth + 1)}`],
   changed: key => [
-    ` - ${key.name}: ${stringifyDiff(key.before)}`,
-    ` + ${key.name}: ${stringifyDiff(key.after)}`
+    ` - ${key.name}: ${stringifyDiff(key.before, key.depth + 1)}`,
+    ` + ${key.name}: ${stringifyDiff(key.after, key.depth + 1)}`
   ],
 };
 
@@ -40,12 +48,13 @@ const stringifyKey = (key) => {
   return diff.map(row => pad + row).join('\n');
 };
 
-export const stringifyDiff = (diff) => {
+export const stringifyDiff = (diff, depth = 0) => {
   if (typeof diff === 'string' || typeof diff === 'number' || typeof diff === 'boolean') {
     return diff;
   }
 
   const rows = diff.map(key => stringifyKey(key));
+  const pad = _.repeat(' ', depth * 3);
 
-  return `{\n${rows.join('\n')}\n}`;
+  return `{\n${rows.join('\n')}\n${pad}}`;
 };
