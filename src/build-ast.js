@@ -29,7 +29,7 @@ const build = (before, after, parentType) => {
   const newAfter = parentType === 'removed' ? before : after;
 
   return _.union(Object.keys(newBefore), Object.keys(newAfter))
-  .map(key => buildKey(key, newBefore[key], newAfter[key]));
+    .map(key => buildKey(key, newBefore[key], newAfter[key]));
 };
 
 export default (before, after) => build(before, after, null);
