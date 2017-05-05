@@ -1,6 +1,6 @@
 {
   "name": "rigwarl-gendiff",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "cli utility compares two configuration files and shows a difference",
   "bin": {
     "gendiff": "dist/bin/gendiff.js"
