@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 const build = (node, depth) => {
-  if (typeof node === 'string' || typeof node === 'number' || typeof node === 'boolean') {
+  if (!(node instanceof Object)) {
     return node;
   }
 
