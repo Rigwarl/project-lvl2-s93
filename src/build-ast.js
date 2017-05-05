@@ -11,31 +11,25 @@ const keyChecker = {
 const getKeyType = (before, after) => ['same', 'new', 'removed', 'changed']
   .find(type => keyChecker[type](before, after));
 
-const buildValue = (value, before, after, type) => {
-  if (!(value instanceof Object)) {
-    return value;
-  }
-
-  const newBefore = type === 'new' ? after : before;
-  const newAfter = type === 'removed' ? before : after;
-
-  // eslint-disable-next-line no-use-before-define
-  return build(newBefore, newAfter);
-};
-
 const buildKey = (name, before, after) => {
   const type = getKeyType(before, after);
+  // eslint-disable-next-line no-use-before-define
+  const buildValue = value => (value instanceof Object ? build(before, after, type) : value);
 
   return {
     name,
     type,
-    before: buildValue(before, before, after, type),
-    after: buildValue(after, before, after, type),
+    before: buildValue(before),
+    after: buildValue(after),
   };
 };
 
-const build = (before, after) =>
-  _.union(Object.keys(before), Object.keys(after))
-  .map(key => buildKey(key, before[key], after[key]));
+const build = (before, after, parentType) => {
+  const newBefore = parentType === 'new' ? after : before;
+  const newAfter = parentType === 'removed' ? before : after;
 
-export default build;
+  return _.union(Object.keys(newBefore), Object.keys(newAfter))
+  .map(key => buildKey(key, newBefore[key], newAfter[key]));
+};
+
+export default (before, after) => build(before, after, null);
