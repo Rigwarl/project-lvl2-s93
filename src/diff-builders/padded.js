@@ -1,10 +1,6 @@
 import _ from 'lodash';
 
 const build = (node, depth) => {
-  if (!(node instanceof Object)) {
-    return node;
-  }
-
   const pad = _.repeat(' ', depth * 3);
   // eslint-disable-next-line no-use-before-define
   const rows = node.map(key => buildKey(key, depth));
@@ -12,13 +8,15 @@ const build = (node, depth) => {
   return `{\n${rows.join('\n')}\n${pad}}`;
 };
 
+const buildValue = (value, children, depth) => (children ? build(children, depth) : value);
+
 const keyBuilder = {
-  same: (key, depth) => [`   ${key.name}: ${build(key.before, depth)}`],
-  new: (key, depth) => [` + ${key.name}: ${build(key.after, depth)}`],
-  removed: (key, depth) => [` - ${key.name}: ${build(key.before, depth)}`],
+  same: (key, depth) => [`   ${key.name}: ${buildValue(key.before, key.children, depth)}`],
+  new: (key, depth) => [` + ${key.name}: ${buildValue(key.after, key.children, depth)}`],
+  removed: (key, depth) => [` - ${key.name}: ${buildValue(key.before, key.children, depth)}`],
   changed: (key, depth) => [
-    ` - ${key.name}: ${build(key.before, depth)}`,
-    ` + ${key.name}: ${build(key.after, depth)}`,
+    ` - ${key.name}: ${buildValue(key.before, key.children, depth)}`,
+    ` + ${key.name}: ${buildValue(key.after, key.children, depth)}`,
   ],
 };
 

@@ -11,25 +11,34 @@ const keyChecker = {
 const getKeyType = (before, after) => ['same', 'new', 'removed', 'changed']
   .find(type => keyChecker[type](before, after));
 
+/* eslint-disable no-use-before-define */
+const buildChildren = (value, secondValue = null) =>
+  (value instanceof Object ? build(value, secondValue || value) : null);
+/* eslint-enable no-use-before-define */
+
+const childBuilder = {
+  same: (before, after) => buildChildren(before, after),
+  new: (before, after) => buildChildren(after),
+  removed: before => buildChildren(before),
+  changed: (before, after) => buildChildren(before) || buildChildren(after) || null,
+};
+
+const buildValue = value => (value instanceof Object ? null : value);
+
 const buildKey = (name, before, after) => {
   const type = getKeyType(before, after);
-  // eslint-disable-next-line no-use-before-define
-  const buildValue = value => (value instanceof Object ? build(before, after, type) : value);
 
   return {
     name,
     type,
+    children: childBuilder[type](before, after),
     before: buildValue(before),
     after: buildValue(after),
   };
 };
 
-const build = (before, after, parentType) => {
-  const newBefore = parentType === 'new' ? after : before;
-  const newAfter = parentType === 'removed' ? before : after;
+const build = (before, after) =>
+  _.union(Object.keys(before), Object.keys(after))
+  .map(key => buildKey(key, before[key], after[key]));
 
-  return _.union(Object.keys(newBefore), Object.keys(newAfter))
-    .map(key => buildKey(key, newBefore[key], newAfter[key]));
-};
-
-export default (before, after) => build(before, after, null);
+export default build;
