@@ -1,8 +1,9 @@
 import _ from 'lodash';
 
+const isObj = val => val instanceof Object;
+
 const keyChecker = {
-  same: (before, after) =>
-    before === after || (before instanceof Object && after instanceof Object),
+  same: (before, after) => before === after || (isObj(before) && isObj(after)),
   new: before => before === undefined,
   removed: (before, after) => after === undefined,
   changed: () => true,
@@ -11,19 +12,7 @@ const keyChecker = {
 const getKeyType = (before, after) => ['same', 'new', 'removed', 'changed']
   .find(type => keyChecker[type](before, after));
 
-/* eslint-disable no-use-before-define */
-const buildChildren = (value, secondValue = null) =>
-  (value instanceof Object ? build(value, secondValue || value) : null);
-/* eslint-enable no-use-before-define */
-
-const childBuilder = {
-  same: (before, after) => buildChildren(before, after),
-  new: (before, after) => buildChildren(after),
-  removed: before => buildChildren(before),
-  changed: (before, after) => buildChildren(before) || buildChildren(after) || null,
-};
-
-const buildValue = value => (value instanceof Object ? null : value);
+const buildValue = value => (isObj(value) ? null : value);
 
 const buildKey = (name, before, after) => {
   const type = getKeyType(before, after);
@@ -31,14 +20,25 @@ const buildKey = (name, before, after) => {
   return {
     name,
     type,
-    children: childBuilder[type](before, after),
+    // eslint-disable-next-line no-use-before-define
+    children: build(before, after),
     before: buildValue(before),
     after: buildValue(after),
   };
 };
 
-const build = (before, after) =>
+const buildIter = (before, after) =>
   _.union(Object.keys(before), Object.keys(after))
   .map(key => buildKey(key, before[key], after[key]));
+
+const build = (before, after) => {
+  if (!isObj(before) && !isObj(after)) {
+    return null;
+  }
+  const newBefore = isObj(before) ? before : after;
+  const newAfter = isObj(after) ? after : before;
+
+  return buildIter(newBefore, newAfter);
+};
 
 export default build;
