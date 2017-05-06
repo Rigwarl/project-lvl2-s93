@@ -1,27 +1,23 @@
-import _ from 'lodash';
-
-const build = (node) => {
-  if (!(node instanceof Object)) {
-    return node;
-  }
-
+const build = node =>
   // eslint-disable-next-line no-use-before-define
-  const diff = node.map(key => buildKey(key));
-  const flatDiff = _.flatten(diff);
+  node.map(key => buildKey(key))
+    .reduce((acc, key) => ({ ...acc, [key.name]: key.body }), {});
 
-  return flatDiff.reduce((acc, curr) => ({ ...acc, ...curr }), {});
-};
+const buildValue = (children, value) => (children ? build(children) : value);
 
 const keyBuilder = {
-  same: key => [{ [key.name]: build(key.before) }],
-  new: key => [{ [`+${key.name}`]: build(key.after) }],
-  removed: key => [{ [`-${key.name}`]: build(key.before) }],
-  changed: key => [
-    { [`-${key.name}`]: build(key.before) },
-    { [`+${key.name}`]: build(key.after) },
-  ],
+  same: key => ({ value: buildValue(key.children, key.before) }),
+  new: key => ({ value: buildValue(key.children, key.after) }),
+  removed: key => ({ value: buildValue(key.children, key.before) }),
+  changed: key => ({
+    value: buildValue(key.children, key.after),
+    prevValue: buildValue(key.children, key.before),
+  }),
 };
 
-const buildKey = key => keyBuilder[key.type](key);
+const buildKey = key => ({
+  name: key.name,
+  body: { type: key.type, ...keyBuilder[key.type](key) },
+});
 
 export default ast => JSON.stringify(build(ast), null, '  ');
